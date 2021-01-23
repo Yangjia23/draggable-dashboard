@@ -1,0 +1,33 @@
+.preview-component {
+  box-sizing: border-box;
+  border: 1px solid rosybrown;
+  position: relative;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px;
+  // pointer-events: none;
+
+  > .component-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: sandybrown;
+    padding: 0 4px;
+    border-bottom-right-radius: 6px;
+    text-align: center;
+    z-index: 2;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 1;
+  }
+}

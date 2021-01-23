@@ -1,0 +1,51 @@
+$headerH: 48px;
+$footerH: 54px;
+$asideW: 240px;
+
+.editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  &-header {
+    width: 100%;
+    height: $headerH;
+    background: #5d5d34;
+  }
+
+  &-container {
+    height: calc(100% - #{$headerH});
+    display: flex;
+    > .editor-aside {
+      width: $asideW;
+      flex-shrink: 0;
+      border: 1px solid sandybrown;
+    }
+    > .editor-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      > .editor-operate {
+        flex: 1;
+        position: relative;
+        overflow: auto;
+        margin: 20px;
+        // display: flex;
+        // justify-content: center;
+        #canvas {
+          background: silver;
+          position: absolute;
+          // left: 50%;
+          // top: 50%;
+          // transform: translate(-50%, -50%);
+          > .editor-block {
+            position: absolute;
+          }
+        }
+      }
+      > .editor-footer {
+        height: $footerH;
+        border: 1px solid #5d5d34;
+      }
+    }
+  }
+}

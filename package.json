@@ -16,8 +16,7 @@
   "lint-staged": {
     "*.{ts,tsx,js}": [
       "yarn lint",
-      "yarn prettier",
-      "git add"
+      "yarn prettier"
     ]
   },
   "dependencies": {
@@ -42,6 +41,7 @@
     "@vue/eslint-config-typescript": "^5.0.2",
     "babel-plugin-component": "^1.1.1",
     "eslint": "^6.7.2",
+    "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-vue": "^7.0.0-0",
     "husky": "^4.3.8",
