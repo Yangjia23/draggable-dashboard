@@ -1,18 +1,44 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <Editor v-model:modelValue="jsonData" :config="compConfig" />
   </div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import Editor from '@/components/Editor' // @ is an alias to /src
+import editorComp from '@/components/Editor/config/registerComponents'
 
-@Options({
+export default {
+  name: 'Home',
   components: {
-    HelloWorld,
+    Editor,
   },
-})
-export default class Home extends Vue {}
+  data() {
+    return {
+      jsonData: {
+        contain: {
+          width: 1320,
+          height: 820,
+        },
+        blocks: [
+          {
+            top: 100,
+            left: 100,
+          },
+          {
+            top: 220,
+            left: 230,
+          },
+        ],
+      },
+      compConfig: editorComp,
+    }
+  },
+}
 </script>
+
+<style scoped>
+.home {
+  height: 100%;
+}
+</style>
