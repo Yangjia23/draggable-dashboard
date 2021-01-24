@@ -60,6 +60,7 @@ const Editor = defineComponent({
             top: e.offsetY,
             left: e.offsetX,
             componentKey: currentDragBlock!.name,
+            resizeLocation: true,
           })
           dataModel.value = {
             ...dataModel.value,

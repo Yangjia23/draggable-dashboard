@@ -24,12 +24,12 @@ export default {
           {
             top: 100,
             left: 100,
-            componentKey: 'button'
+            componentKey: 'button',
           },
           {
             top: 220,
             left: 230,
-            componentKey: 'title'
+            componentKey: 'title',
           },
         ],
       },

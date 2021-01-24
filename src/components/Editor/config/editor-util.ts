@@ -3,7 +3,8 @@ import { ref, watch } from 'vue'
 export interface BlockData {
   top: number
   left: number
-  componentKey: string
+  componentKey: string // 组件的 key
+  resizeLocation?: boolean // 调整位置
 }
 
 export interface ModelValue {
