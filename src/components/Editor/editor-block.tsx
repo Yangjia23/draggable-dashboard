@@ -1,10 +1,14 @@
 import { defineComponent, PropType, computed } from 'vue'
-import { BlockData } from './config/editor-util'
+import { BlockData, EditorComponentConfig } from './config/editor-util'
 
 const EditorBlock = defineComponent({
   props: {
     blockData: {
       type: Object as PropType<BlockData>,
+      required: true,
+    },
+    config: {
+      type: Object as PropType<EditorComponentConfig>,
       required: true,
     },
   },
@@ -14,11 +18,15 @@ const EditorBlock = defineComponent({
       top: `${props.blockData.top}px`,
     }))
 
-    return () => (
-      <div class='editor-block' style={blockStyles.value}>
-        Block Editor
-      </div>
-    )
+    return () => {
+      const { config, blockData } = props
+      const component = config.componentMap[blockData.componentKey]
+      return (
+        <div class='editor-block' style={blockStyles.value}>
+          {component.render()}
+        </div>
+      )
+    }
   },
 })
 

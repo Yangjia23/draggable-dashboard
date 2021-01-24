@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 export interface BlockData {
   top: number
   left: number
+  componentKey: string
 }
 
 export interface ModelValue {
