@@ -31,12 +31,30 @@ const EditorLayout = defineComponent({
       () => props.modelValue,
       val => ctx.emit('update：modelValue', val),
     )
+    /**
+     * @description Computed
+     */
     const { blocks, contain } = dataModel.value
     const canvasStyles = computed(() => ({
       width: `${contain.width}px`,
       height: `${contain.height}px`,
     }))
 
+    const blockStatus = computed(() => {
+      const focus: BlockData[] = []
+      const unFocus: BlockData[] = []
+      dataModel.value.blocks.forEach(block => {
+        ;(block.focus ? focus : unFocus).push(block)
+      })
+      return {
+        focus,
+        unFocus,
+      }
+    })
+
+    /**
+     * @description Methods
+     */
     const methods = {
       clearFocus(block?: BlockData) {
         let blocks = dataModel.value.blocks || []
@@ -106,6 +124,43 @@ const EditorLayout = defineComponent({
       return blockHandle
     })()
 
+    // 拖拽画布上的 Block
+    const blockHandler = (() => {
+      let dragState = {
+        startX: 0,
+        startY: 0,
+        dragBlocks: [] as { left: number; top: number }[],
+      }
+
+      const mousemove = (e: MouseEvent) => {
+        const durX = e.clientX - dragState.startX
+        const durY = e.clientY - dragState.startY
+        blockStatus.value.focus.forEach((block, index) => {
+          block.top = dragState.dragBlocks[index].top + durY
+          block.left = dragState.dragBlocks[index].left + durX
+        })
+      }
+
+      const mouseup = () => {
+        document.removeEventListener('mousemove', mousemove)
+        document.removeEventListener('mouseup', mouseup)
+      }
+
+      const mousedown = (e: MouseEvent) => {
+        console.log('mousedown e', e)
+        dragState = {
+          startX: e.clientX,
+          startY: e.clientY,
+          dragBlocks: blockStatus.value.focus.map(({ top, left }) => ({ top, left })),
+        }
+        document.addEventListener('mousemove', mousemove)
+        document.addEventListener('mouseup', mouseup)
+      }
+      return {
+        mousedown,
+      }
+    })()
+
     // 点击画布上组件，focus选中，shift 多选
     const focusHandler = (() => ({
       block: {
@@ -114,10 +169,11 @@ const EditorLayout = defineComponent({
           e.preventDefault()
           if (e.shiftKey) {
             block.focus = !block.focus
-          } else {
+          } else if (!block.focus) {
             block.focus = true
             methods.clearFocus(block)
           }
+          blockHandler.mousedown(e)
         },
       },
       canvas: {

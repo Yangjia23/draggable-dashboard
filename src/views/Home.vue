@@ -25,13 +25,13 @@ export default {
             top: 100,
             left: 100,
             componentKey: 'button',
-            focus: false
+            focus: false,
           },
           {
             top: 220,
             left: 230,
             componentKey: 'title',
-            focus: false
+            focus: false,
           },
         ],
       },
