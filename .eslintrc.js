@@ -18,9 +18,11 @@ module.exports = {
   },
   rules: {
     semi: [2, 'never'],
+    'no-shadow': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-trailing-spaces': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-param-reassign': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
 
     '@typescript-eslint/no-unused-vars': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     '@typescript-eslint/no-non-null-assertion': process.env.NODE_ENV === 'production' ? 'warn' : 'off',

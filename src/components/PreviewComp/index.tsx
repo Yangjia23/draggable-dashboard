@@ -1,12 +1,12 @@
 import { defineComponent, PropType } from 'vue'
 
-import { EditorComponent } from '../Editor/config/editor-util'
+import { ComponentData } from '@/utils/types'
 import './index.scss'
 
 const PreviewComp = defineComponent({
   props: {
     component: {
-      type: Object as PropType<EditorComponent>,
+      type: Object as PropType<ComponentData>,
       required: true,
     },
   },

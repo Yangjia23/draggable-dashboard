@@ -1,5 +1,8 @@
 import { defineComponent, PropType, computed, ref, onMounted } from 'vue'
-import { BlockData, EditorComponentConfig } from './config/editor-util'
+import { BlockData } from '@/utils/types'
+import { ComponentHandlerConfig } from '@/utils/editor'
+
+import './index.scss'
 
 const EditorBlock = defineComponent({
   props: {
@@ -8,7 +11,7 @@ const EditorBlock = defineComponent({
       required: true,
     },
     config: {
-      type: Object as PropType<EditorComponentConfig>,
+      type: Object as PropType<ComponentHandlerConfig>,
       required: true,
     },
   },
@@ -18,6 +21,16 @@ const EditorBlock = defineComponent({
       left: `${props.blockData.left}px`,
       top: `${props.blockData.top}px`,
     }))
+
+    const blockClasses = computed(() => {
+      const { blockData } = props
+      return [
+        'editor-block',
+        {
+          'editor-block-focus': blockData.focus,
+        },
+      ]
+    })
 
     onMounted(() => {
       const { blockData } = props
@@ -33,7 +46,7 @@ const EditorBlock = defineComponent({
       const { config, blockData } = props
       const component = config.componentMap[blockData.componentKey]
       return (
-        <div class='editor-block' style={blockStyles.value} ref={blockRef}>
+        <div class={blockClasses.value} style={blockStyles.value} ref={blockRef}>
           {component.render()}
         </div>
       )

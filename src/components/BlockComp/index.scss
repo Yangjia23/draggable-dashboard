@@ -1,0 +1,17 @@
+.editor-block {
+  position: relative;
+
+  &-focus{
+    &::after {
+      $space: -3px;
+      content: '';
+      position: absolute;
+      border: 1px dashed red;
+      top: $space;
+      left: $space;
+      right: $space;
+      bottom: $space;
+      z-index: 1;
+    }
+  }
+}

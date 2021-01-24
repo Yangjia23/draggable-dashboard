@@ -1,24 +1,26 @@
 import { defineComponent, PropType, computed, ref } from 'vue'
 
-import EditorBlock from './editor-block'
+import { ComponentData, CanvasModelValue, BlockData } from '@/utils/types'
+import { createNewBlock, ComponentHandlerConfig } from '@/utils/editor'
+import useModel from './useModel'
+import EditorBlock from '../BlockComp'
 import PreviewComp from '../PreviewComp'
-import { ModelValue, EditorComponentConfig, EditorComponent, useModel } from './config/editor-util'
-import './config/index.scss'
+import './index.scss'
 
-const Editor = defineComponent({
+const EditorLayout = defineComponent({
   props: {
     modelValue: {
-      type: Object as PropType<ModelValue>,
+      type: Object as PropType<CanvasModelValue>,
       required: true,
     },
     config: {
-      type: Object as PropType<EditorComponentConfig>,
+      type: Object as PropType<ComponentHandlerConfig>,
       required: true,
     },
   },
   // 定义派发事件类型
   emits: {
-    'update：modelValue': (val?: ModelValue) => true,
+    'update：modelValue': (val?: CanvasModelValue) => true,
   },
   components: {
     EditorBlock,
@@ -35,10 +37,24 @@ const Editor = defineComponent({
       height: `${contain.height}px`,
     }))
 
+    const methods = {
+      clearFocus(block?: BlockData) {
+        let blocks = dataModel.value.blocks || []
+        if (!blocks.length) return
+        if (block) {
+          blocks = blocks.filter(item => item !== block)
+        }
+        blocks.forEach(item => {
+          item.focus = false
+        })
+      },
+    }
+
     const canvasRef = ref({} as HTMLDivElement)
 
+    // 从组件菜单拖拽组件到画布
     const dragHandler = (() => {
-      let currentDragBlock = null as null | EditorComponent
+      let currentDragBlock = null as null | ComponentData
       const canvasHandle = {
         // 被拖拽组件进入画布，鼠标设置成“可放置”状态
         dragenter: (e: DragEvent) => {
@@ -56,12 +72,13 @@ const Editor = defineComponent({
         drop: (e: DragEvent) => {
           console.log('currentDragBlock', currentDragBlock)
           const existBlocks = dataModel.value.blocks || []
-          existBlocks.push({
-            top: e.offsetY,
-            left: e.offsetX,
-            componentKey: currentDragBlock!.name,
-            resizeLocation: true,
-          })
+          existBlocks.push(
+            createNewBlock({
+              top: e.offsetY,
+              left: e.offsetX,
+              component: currentDragBlock!,
+            }),
+          )
           dataModel.value = {
             ...dataModel.value,
             blocks: existBlocks,
@@ -70,7 +87,7 @@ const Editor = defineComponent({
       }
       const blockHandle = {
         // block组件 开始被拖拽
-        dragstart: (e: DragEvent, component: EditorComponent) => {
+        dragstart: (e: DragEvent, component: ComponentData) => {
           canvasRef.value.addEventListener('dragenter', canvasHandle.dragenter)
           canvasRef.value.addEventListener('dragover', canvasHandle.dragover)
           canvasRef.value.addEventListener('dragleave', canvasHandle.dragleave)
@@ -88,6 +105,29 @@ const Editor = defineComponent({
       }
       return blockHandle
     })()
+
+    // 点击画布上组件，focus选中，shift 多选
+    const focusHandler = (() => ({
+      block: {
+        onMousedown: (e: MouseEvent, block: BlockData) => {
+          e.stopPropagation()
+          e.preventDefault()
+          if (e.shiftKey) {
+            block.focus = !block.focus
+          } else {
+            block.focus = true
+            methods.clearFocus(block)
+          }
+        },
+      },
+      canvas: {
+        onMousedown: (e: MouseEvent) => {
+          methods.clearFocus()
+          e.stopPropagation()
+          e.preventDefault()
+        },
+      },
+    }))()
 
     return () => (
       <div class='editor'>
@@ -107,9 +147,25 @@ const Editor = defineComponent({
           </aside>
           <main class='editor-center'>
             <div class='editor-operate'>
-              <div id='canvas' style={canvasStyles.value} ref={canvasRef}>
+              <div
+                id='canvas'
+                style={canvasStyles.value}
+                ref={canvasRef}
+                {...{
+                  onMousedown: (e: MouseEvent) => focusHandler.canvas.onMousedown(e),
+                }}
+              >
                 {blocks &&
-                  blocks.map((block, index) => <EditorBlock config={props.config} blockData={block} key={index} />)}
+                  blocks.map((block, index) => (
+                    <EditorBlock
+                      config={props.config}
+                      blockData={block}
+                      key={index}
+                      {...{
+                        onMousedown: (e: MouseEvent) => focusHandler.block.onMousedown(e, block),
+                      }}
+                    />
+                  ))}
               </div>
             </div>
             <footer class='editor-footer'>Footer</footer>
@@ -121,4 +177,4 @@ const Editor = defineComponent({
   },
 })
 
-export default Editor
+export default EditorLayout
