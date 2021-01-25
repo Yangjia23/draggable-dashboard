@@ -2,6 +2,7 @@ import { defineComponent, PropType, computed, ref } from 'vue'
 
 import { ComponentData, CanvasModelValue, BlockData } from '@/utils/types'
 import { createNewBlock, ComponentHandlerConfig } from '@/utils/editor'
+import useCommand from '@/components/CommandTool/useCommand'
 import useModel from './useModel'
 import EditorBlock from '../BlockComp'
 import PreviewComp from '../PreviewComp'
@@ -66,6 +67,16 @@ const EditorLayout = defineComponent({
           item.focus = false
         })
       },
+      updateBlocks(blocks: BlockData[]) {
+        console.log('blocks', blocks)
+
+        dataModel.value = {
+          ...dataModel.value,
+          blocks,
+        }
+
+        console.log('dataModel.value ', dataModel.value)
+      },
     }
 
     const canvasRef = ref({} as HTMLDivElement)
@@ -76,7 +87,7 @@ const EditorLayout = defineComponent({
       const canvasHandle = {
         // 被拖拽组件进入画布，鼠标设置成“可放置”状态
         dragenter: (e: DragEvent) => {
-          e.dataTransfer!.dropEffect = 'move'
+          // e.dataTransfer!.dropEffect = 'move'
         },
         // 被拖拽组件在画布上移动，禁止默认事件
         dragover: (e: DragEvent) => {
@@ -106,6 +117,7 @@ const EditorLayout = defineComponent({
       const blockHandle = {
         // block组件 开始被拖拽
         dragstart: (e: DragEvent, component: ComponentData) => {
+          e.dataTransfer!.dropEffect = 'grabbing'
           canvasRef.value.addEventListener('dragenter', canvasHandle.dragenter)
           canvasRef.value.addEventListener('dragover', canvasHandle.dragover)
           canvasRef.value.addEventListener('dragleave', canvasHandle.dragleave)
@@ -185,6 +197,17 @@ const EditorLayout = defineComponent({
       },
     }))()
 
+    const commander = useCommand({
+      blockData: blockStatus,
+      updateBlocks: methods.updateBlocks,
+    })
+
+    const commandTools = [
+      { labe: '撤销', icon: 'icon-back', tip: 'ctrl + z', handler: commander.undo },
+      { labe: '重做', icon: 'icon-forward', tip: 'ctrl + shift + z', handler: commander.redo },
+      { labe: '删除', icon: 'icon-delete', tip: 'ctrl + d, delete, ', handler: () => commander.delete() },
+    ]
+
     return () => (
       <div class='editor'>
         <header class='editor-header'>Editor Header</header>
@@ -202,6 +225,13 @@ const EditorLayout = defineComponent({
             ))}
           </aside>
           <main class='editor-center'>
+            <div class='editor-command'>
+              {commandTools.map(command => (
+                <div class='command-item' onClick={command.handler}>
+                  <span>{command.labe}</span>
+                </div>
+              ))}
+            </div>
             <div class='editor-operate'>
               <div
                 id='canvas'
@@ -211,8 +241,8 @@ const EditorLayout = defineComponent({
                   onMousedown: (e: MouseEvent) => focusHandler.canvas.onMousedown(e),
                 }}
               >
-                {blocks &&
-                  blocks.map((block, index) => (
+                {dataModel.value.blocks &&
+                  dataModel.value.blocks.map((block, index) => (
                     <EditorBlock
                       config={props.config}
                       blockData={block}

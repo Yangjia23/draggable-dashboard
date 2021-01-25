@@ -24,6 +24,19 @@ $asideW: 240px;
       flex: 1;
       display: flex;
       flex-direction: column;
+      > .editor-command {
+        color: #fff;
+        background: #000;
+        height: 40px;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        > .command-item {
+          font-size: 14px;
+          padding: 0 .4em;
+          cursor: pointer;
+        }
+      }
       > .editor-operate {
         flex: 1;
         position: relative;
