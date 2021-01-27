@@ -1,17 +1,25 @@
-import { BlockData } from '@/utils/types'
+import deepcopy from 'deepcopy'
+import { BlockData, CanvasModelValue } from '@/utils/types'
 import { createCommandManager } from './commandManager'
 
 export default function useCommand({
-  blockData,
+  blockDataModel,
   updateBlocks,
+  dragStartEvent,
+  dragEndEvent,
 }: {
-  blockData: {
-    value: {
-      focus: BlockData[]
-      unFocus: BlockData[]
-    }
+  blockDataModel: {
+    value: CanvasModelValue
   }
   updateBlocks: (blocks: BlockData[]) => void
+  dragStartEvent: {
+    on: (cb: () => void) => void
+    off: (cb: () => void) => void
+  }
+  dragEndEvent: {
+    on: (cb: () => void) => void
+    off: (cb: () => void) => void
+  }
 }) {
   const commander = createCommandManager()
 
@@ -23,8 +31,8 @@ export default function useCommand({
     execute: () => {
       console.log('执行删除操作ing')
       const data = {
-        before: [...blockData.value.unFocus, ...blockData.value.focus],
-        after: blockData.value.unFocus,
+        before: blockDataModel.value.blocks,
+        after: blockDataModel.value.blocks.filter(block => !block.focus),
       }
       return {
         redo: () => {
@@ -39,9 +47,47 @@ export default function useCommand({
     },
   })
 
+  // 拖拽
+  commander.register({
+    name: 'drag',
+    followQueue: true,
+    init() {
+      this.data = { before: null as null | BlockData[] }
+
+      const handler = {
+        dragStart: () => {
+          this.data.before = deepcopy(blockDataModel.value.blocks || [])
+        },
+        dragEnd: () => {
+          commander.state.commands.drag()
+        },
+      }
+      dragStartEvent.on(handler.dragStart)
+      dragEndEvent.on(handler.dragEnd)
+      return () => {
+        dragStartEvent.off(handler.dragStart)
+        dragEndEvent.off(handler.dragEnd)
+      }
+    },
+    execute() {
+      const { before } = this.data
+      const after = blockDataModel.value.blocks || []
+
+      return {
+        redo: () => {
+          updateBlocks(deepcopy(after))
+        },
+        undo: () => {
+          updateBlocks(deepcopy(before))
+        },
+      }
+    },
+  })
+
   return {
     undo: () => commander.state.commands.undo(),
     redo: () => commander.state.commands.redo(),
     delete: () => commander.state.commands.delete(),
+    drag: () => commander.state.commands.drag(),
   }
 }

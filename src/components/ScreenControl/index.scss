@@ -1,0 +1,23 @@
+
+.screen-control{
+  display: flex;
+  align-items: center;
+
+  &-select{
+    width: 80px;
+    margin-right: 10px;
+    .el-input__inner{
+      padding-left: 10px;
+    }
+  }
+
+  &-icon{
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  &-slider{
+    width: 120px;
+    margin: 0 10px;
+  }
+}

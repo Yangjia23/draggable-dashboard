@@ -1,15 +1,36 @@
-$headerH: 48px;
-$footerH: 54px;
+$headerH: 40px;
+$footerH: 40px;
 $asideW: 240px;
+
+$bgHeader: #1e2021;
+$bgAsideTop: #2d363b;
+$bgAsideBody: #1b2125;
+$bgFooter: #222728;
+$bgCanvas: #2a3033;
+$bgToolbox: #191c21;
+$color: #f8f8f9;
+$borderColor: #030304;
 
 .editor {
   height: 100%;
   display: flex;
   flex-direction: column;
+  color: $color;
+  overflow: hidden;
   &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
     width: 100%;
     height: $headerH;
-    background: #5d5d34;
+    padding: 0 20px;
+    background: $bgHeader;
+    border-bottom: 1px solid $borderColor;
+
+    .editor-btn{
+      padding: 4px 12px;
+    }
   }
 
   &-container {
@@ -18,23 +39,49 @@ $asideW: 240px;
     > .editor-aside {
       width: $asideW;
       flex-shrink: 0;
-      border: 1px solid sandybrown;
+      border-right: 1px solid $borderColor;
+      background: $bgAsideBody;
+      overflow: hidden;
+      transition: width 0.3s ease;
+      .editor-aside-top{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 40px;
+        padding: 0 16px;
+        background: $bgAsideTop;
+        font-size: 14px;
+      }
+      .editor-aside-toggle{
+        font-size: 18px;
+        cursor: pointer;
+      }
+      &.hide{
+        width: 0;
+      }
     }
     > .editor-center {
       flex: 1;
       display: flex;
       flex-direction: column;
-      > .editor-command {
-        color: #fff;
-        background: #000;
+      > .toolbox-panel {
+        background: $bgToolbox;
+        box-sizing: border-box;
         height: 40px;
         padding: 0 20px;
         display: flex;
         align-items: center;
-        > .command-item {
-          font-size: 14px;
-          padding: 0 .4em;
-          cursor: pointer;
+        border-bottom: 1px solid #000;
+        transition: height .3s ease;
+        > .toolbox-item {
+          padding: 3px 10px;
+          i {
+            font-size: 14px;
+          }
+        }
+        &.hide{
+          height: 0;
+          overflow: hidden;
         }
       }
       > .editor-operate {
@@ -56,8 +103,12 @@ $asideW: 240px;
         }
       }
       > .editor-footer {
+        display: flex;
+        flex-direction: row-reverse;
+        padding: 0 20px;
         height: $footerH;
-        border: 1px solid #5d5d34;
+        border-top: 1px solid $borderColor;
+        background-color: $bgFooter;
       }
     }
   }

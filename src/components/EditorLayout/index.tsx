@@ -1,11 +1,13 @@
-import { defineComponent, PropType, computed, ref } from 'vue'
+import { defineComponent, PropType, computed, ref, reactive } from 'vue'
 
 import { ComponentData, CanvasModelValue, BlockData } from '@/utils/types'
 import { createNewBlock, ComponentHandlerConfig } from '@/utils/editor'
 import useCommand from '@/components/CommandTool/useCommand'
+import createEvent from '@/utils/event'
 import useModel from './useModel'
 import EditorBlock from '../BlockComp'
 import PreviewComp from '../PreviewComp'
+import ScreenControl from '../ScreenControl'
 import './index.scss'
 
 const EditorLayout = defineComponent({
@@ -26,6 +28,7 @@ const EditorLayout = defineComponent({
   components: {
     EditorBlock,
     PreviewComp,
+    ScreenControl,
   },
   setup(props, ctx) {
     const dataModel = useModel(
@@ -68,18 +71,20 @@ const EditorLayout = defineComponent({
         })
       },
       updateBlocks(blocks: BlockData[]) {
-        console.log('blocks', blocks)
-
+        console.log('执行ing', blocks)
         dataModel.value = {
           ...dataModel.value,
           blocks,
         }
-
-        console.log('dataModel.value ', dataModel.value)
       },
     }
 
     const canvasRef = ref({} as HTMLDivElement)
+
+    // 拖拽开始监听器
+    const dragStartEvent = createEvent()
+    // 拖拽结束监听器
+    const dragEndEvent = createEvent()
 
     // 从组件菜单拖拽组件到画布
     const dragHandler = (() => {
@@ -97,21 +102,15 @@ const EditorLayout = defineComponent({
         dragleave: (e: DragEvent) => {
           e.dataTransfer!.dropEffect = 'none'
         },
-        // 被拖拽组件防止到画布上
+        // 被拖拽组件放置到画布上
         drop: (e: DragEvent) => {
           console.log('currentDragBlock', currentDragBlock)
-          const existBlocks = dataModel.value.blocks || []
-          existBlocks.push(
-            createNewBlock({
-              top: e.offsetY,
-              left: e.offsetX,
-              component: currentDragBlock!,
-            }),
-          )
-          dataModel.value = {
-            ...dataModel.value,
-            blocks: existBlocks,
-          }
+          // const existBlocks = dataModel.value.blocks || []
+          const blocks = [...dataModel.value.blocks]
+          blocks.push(createNewBlock({ top: e.offsetY, left: e.offsetX, component: currentDragBlock! }))
+          console.log('blocks after drop', blocks)
+          methods.updateBlocks(blocks)
+          dragEndEvent.emit()
         },
       }
       const blockHandle = {
@@ -123,6 +122,7 @@ const EditorLayout = defineComponent({
           canvasRef.value.addEventListener('dragleave', canvasHandle.dragleave)
           canvasRef.value.addEventListener('drop', canvasHandle.drop)
           currentDragBlock = component
+          dragStartEvent.emit()
         },
         // block组件结束被拖拽
         dragend: (e: DragEvent) => {
@@ -131,6 +131,7 @@ const EditorLayout = defineComponent({
           canvasRef.value.removeEventListener('dragleave', canvasHandle.dragleave)
           canvasRef.value.removeEventListener('drop', canvasHandle.drop)
           currentDragBlock = null
+          // dragEndEvent.emit()
         },
       }
       return blockHandle
@@ -141,10 +142,15 @@ const EditorLayout = defineComponent({
       let dragState = {
         startX: 0,
         startY: 0,
+        isDragging: false,
         dragBlocks: [] as { left: number; top: number }[],
       }
 
       const mousemove = (e: MouseEvent) => {
+        if (!dragState.isDragging) {
+          dragState.isDragging = true
+          dragStartEvent.emit()
+        }
         const durX = e.clientX - dragState.startX
         const durY = e.clientY - dragState.startY
         blockStatus.value.focus.forEach((block, index) => {
@@ -154,6 +160,10 @@ const EditorLayout = defineComponent({
       }
 
       const mouseup = () => {
+        if (dragState.isDragging) {
+          dragState.isDragging = false
+          dragEndEvent.emit()
+        }
         document.removeEventListener('mousemove', mousemove)
         document.removeEventListener('mouseup', mouseup)
       }
@@ -163,6 +173,7 @@ const EditorLayout = defineComponent({
         dragState = {
           startX: e.clientX,
           startY: e.clientY,
+          isDragging: false,
           dragBlocks: blockStatus.value.focus.map(({ top, left }) => ({ top, left })),
         }
         document.addEventListener('mousemove', mousemove)
@@ -198,21 +209,73 @@ const EditorLayout = defineComponent({
     }))()
 
     const commander = useCommand({
-      blockData: blockStatus,
+      blockDataModel: dataModel,
       updateBlocks: methods.updateBlocks,
+      dragStartEvent,
+      dragEndEvent,
     })
 
     const commandTools = [
-      { labe: '撤销', icon: 'icon-back', tip: 'ctrl + z', handler: commander.undo },
-      { labe: '重做', icon: 'icon-forward', tip: 'ctrl + shift + z', handler: commander.redo },
-      { labe: '删除', icon: 'icon-delete', tip: 'ctrl + d, delete, ', handler: () => commander.delete() },
+      { labe: '撤销', icon: 'top-left', tip: 'ctrl + z', handler: commander.undo },
+      { labe: '重做', icon: 'top-right', tip: 'ctrl + shift + z', handler: commander.redo },
+      { labe: '删除', icon: 'delete', tip: 'ctrl + d, delete, ', handler: () => commander.delete() },
     ]
+
+    const state = reactive({
+      title: '测试大屏',
+      leftAsideCollapse: false,
+      rightAsideCollapse: false,
+      toolboxCollapse: false,
+    })
+
+    const collapseContrList = [
+      { label: '组件列表', icon: 'el-icon-menu', clickTargetKey: 'leftAsideCollapse' },
+      { label: '右侧面板', icon: 'el-icon-s-unfold', clickTargetKey: 'rightAsideCollapse' },
+      { label: '工具栏', icon: 'el-icon-takeaway-box', clickTargetKey: 'toolboxCollapse' },
+    ]
+
+    type collapseKey = 'leftAsideCollapse' | 'rightAsideCollapse' | 'toolboxCollapse'
+    const collapseMethods = {
+      onCollapseToggle(key: collapseKey) {
+        state[key] = !state[key]
+      },
+    }
 
     return () => (
       <div class='editor'>
-        <header class='editor-header'>Editor Header</header>
+        <header class='editor-header'>
+          <div class='editor-header-left'>
+            {collapseContrList.map(item => (
+              <el-tooltip effect='dark' content={item.label} placement='bottom'>
+                <el-button
+                  type='primary'
+                  size='mini'
+                  icon={item.icon}
+                  class='editor-btn'
+                  onClick={() => collapseMethods.onCollapseToggle(item.clickTargetKey as collapseKey)}
+                ></el-button>
+              </el-tooltip>
+            ))}
+          </div>
+          <div class='editor-header-center'>
+            <i class='el-icon-monitor'></i>
+            <span class='title'>{state.title}</span>
+          </div>
+          <div class='editor-header-right'>
+            <el-tooltip effect='dark' content='预览' placement='bottom'>
+              <el-button type='primary' class='editor-btn' size='mini' icon='el-icon-monitor'></el-button>
+            </el-tooltip>
+            <el-tooltip effect='dark' content='发布' placement='bottom'>
+              <el-button type='primary' class='editor-btn' size='mini' icon='el-icon-s-promotion'></el-button>
+            </el-tooltip>
+          </div>
+        </header>
         <section class='editor-container'>
-          <aside class='editor-aside'>
+          <aside class={['editor-aside', { hide: state.leftAsideCollapse }]}>
+            <div class='editor-aside-top'>
+              <span class='editor-aside-title'>图层</span>
+              <i class='editor-aside-toggle el-icon-arrow-left'></i>
+            </div>
             {props.config.componentList.map(component => (
               <PreviewComp
                 component={component}
@@ -225,11 +288,18 @@ const EditorLayout = defineComponent({
             ))}
           </aside>
           <main class='editor-center'>
-            <div class='editor-command'>
+            <div class={['toolbox-panel', { hide: state.toolboxCollapse }]}>
               {commandTools.map(command => (
-                <div class='command-item' onClick={command.handler}>
-                  <span>{command.labe}</span>
-                </div>
+                <el-tooltip effect='dark' content={command.labe} placement='bottom'>
+                  <el-button
+                    type='primary'
+                    size='mini'
+                    plain
+                    class='toolbox-item'
+                    icon={`el-icon-${command.icon}`}
+                    onClick={command.handler}
+                  ></el-button>
+                </el-tooltip>
               ))}
             </div>
             <div class='editor-operate'>
@@ -254,9 +324,15 @@ const EditorLayout = defineComponent({
                   ))}
               </div>
             </div>
-            <footer class='editor-footer'>Footer</footer>
+            <footer class='editor-footer'>
+              <ScreenControl />
+            </footer>
           </main>
-          <aside class='editor-aside'>Right Aside</aside>
+          <aside class={['editor-aside', { hide: state.rightAsideCollapse }]}>
+            <div class='editor-aside-top'>
+              <span class='editor-aside-title'>页面设置</span>
+            </div>
+          </aside>
         </section>
       </div>
     )
