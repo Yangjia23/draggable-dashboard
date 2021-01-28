@@ -53,7 +53,6 @@ export default function useCommand({
     followQueue: true,
     init() {
       this.data = { before: null as null | BlockData[] }
-
       const handler = {
         dragStart: () => {
           this.data.before = deepcopy(blockDataModel.value.blocks || [])
@@ -84,10 +83,33 @@ export default function useCommand({
     },
   })
 
+  // 清空
+  commander.register({
+    name: 'clear',
+    followQueue: true,
+    execute() {
+      const data = {
+        before: deepcopy(blockDataModel.value.blocks || []),
+        after: [],
+      }
+      return {
+        redo: () => {
+          updateBlocks(deepcopy(data.after))
+        },
+        undo: () => {
+          updateBlocks(deepcopy(data.before))
+        },
+      }
+    },
+  })
+
+  commander.init()
+
   return {
     undo: () => commander.state.commands.undo(),
     redo: () => commander.state.commands.redo(),
     delete: () => commander.state.commands.delete(),
     drag: () => commander.state.commands.drag(),
+    clear: () => commander.state.commands.clear(),
   }
 }

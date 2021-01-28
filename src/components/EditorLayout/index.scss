@@ -28,7 +28,7 @@ $borderColor: #030304;
     background: $bgHeader;
     border-bottom: 1px solid $borderColor;
 
-    .editor-btn{
+    .editor-btn {
       padding: 4px 12px;
     }
   }
@@ -43,7 +43,7 @@ $borderColor: #030304;
       background: $bgAsideBody;
       overflow: hidden;
       transition: width 0.3s ease;
-      .editor-aside-top{
+      .editor-aside-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -52,11 +52,11 @@ $borderColor: #030304;
         background: $bgAsideTop;
         font-size: 14px;
       }
-      .editor-aside-toggle{
+      .editor-aside-toggle {
         font-size: 18px;
         cursor: pointer;
       }
-      &.hide{
+      &.hide {
         width: 0;
       }
     }
@@ -72,14 +72,14 @@ $borderColor: #030304;
         display: flex;
         align-items: center;
         border-bottom: 1px solid #000;
-        transition: height .3s ease;
+        transition: height 0.3s ease;
         > .toolbox-item {
           padding: 3px 10px;
           i {
             font-size: 14px;
           }
         }
-        &.hide{
+        &.hide {
           height: 0;
           overflow: hidden;
         }

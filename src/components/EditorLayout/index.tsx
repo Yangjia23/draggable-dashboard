@@ -188,10 +188,12 @@ const EditorLayout = defineComponent({
     const focusHandler = (() => ({
       block: {
         onMousedown: (e: MouseEvent, block: BlockData) => {
-          e.stopPropagation()
-          e.preventDefault()
           if (e.shiftKey) {
-            block.focus = !block.focus
+            if (blockStatus.value.focus.length <= 1) {
+              block.focus = true
+            } else {
+              block.focus = !block.focus
+            }
           } else if (!block.focus) {
             block.focus = true
             methods.clearFocus(block)
@@ -200,10 +202,15 @@ const EditorLayout = defineComponent({
         },
       },
       canvas: {
+        // 点击空白处，清空选中
         onMousedown: (e: MouseEvent) => {
-          methods.clearFocus()
-          e.stopPropagation()
           e.preventDefault()
+          if (e.currentTarget !== e.target) {
+            return
+          }
+          if (!e.shiftKey) {
+            methods.clearFocus()
+          }
         },
       },
     }))()
@@ -216,9 +223,10 @@ const EditorLayout = defineComponent({
     })
 
     const commandTools = [
-      { labe: '撤销', icon: 'top-left', tip: 'ctrl + z', handler: commander.undo },
-      { labe: '重做', icon: 'top-right', tip: 'ctrl + shift + z', handler: commander.redo },
-      { labe: '删除', icon: 'delete', tip: 'ctrl + d, delete, ', handler: () => commander.delete() },
+      { label: '撤销', icon: 'top-left', tip: 'ctrl + z', handler: commander.undo },
+      { label: '重做', icon: 'top-right', tip: 'ctrl + shift + z', handler: commander.redo },
+      { label: '删除', icon: 'delete', tip: 'ctrl + d, delete, ', handler: () => commander.delete() },
+      { label: '清空', icon: 'delete', handler: () => commander.clear() },
     ]
 
     const state = reactive({
@@ -289,8 +297,8 @@ const EditorLayout = defineComponent({
           </aside>
           <main class='editor-center'>
             <div class={['toolbox-panel', { hide: state.toolboxCollapse }]}>
-              {commandTools.map(command => (
-                <el-tooltip effect='dark' content={command.labe} placement='bottom'>
+              {commandTools.map(command => {
+                const content = (
                   <el-button
                     type='primary'
                     size='mini'
@@ -298,9 +306,18 @@ const EditorLayout = defineComponent({
                     class='toolbox-item'
                     icon={`el-icon-${command.icon}`}
                     onClick={command.handler}
-                  ></el-button>
-                </el-tooltip>
-              ))}
+                  >
+                    {command.label}
+                  </el-button>
+                )
+                return !command.tip ? (
+                  content
+                ) : (
+                  <el-tooltip effect='dark' content={command.tip} placement='bottom'>
+                    {content}
+                  </el-tooltip>
+                )
+              })}
             </div>
             <div class='editor-operate'>
               <div
