@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { ElButton, ElInput, ElRadio, ElSlider, ElSelect, ElOption, ElTooltip } from 'element-plus'
+import { ElButton, ElInput, ElRadio, ElSlider, ElSelect, ElOption, ElTooltip, ElDialog } from 'element-plus'
 
 import App from './App.vue'
 import router from './router'
@@ -14,6 +14,7 @@ app.component(ElSlider.name, ElSlider)
 app.component(ElSelect.name, ElSelect)
 app.component(ElOption.name, ElOption)
 app.component(ElTooltip.name, ElTooltip)
+app.component(ElDialog.name, ElDialog)
 
 app.use(store)
 app.use(router)

@@ -8,7 +8,9 @@ import useModel from './useModel'
 import EditorBlock from '../BlockComp'
 import PreviewComp from '../PreviewComp'
 import ScreenControl from '../ScreenControl'
+import RulerTool from '../RulerTool'
 import './index.scss'
+import $$dialog from '../DialogService'
 
 const EditorLayout = defineComponent({
   props: {
@@ -29,6 +31,7 @@ const EditorLayout = defineComponent({
     EditorBlock,
     PreviewComp,
     ScreenControl,
+    RulerTool,
   },
   setup(props, ctx) {
     const dataModel = useModel(
@@ -39,9 +42,20 @@ const EditorLayout = defineComponent({
      * @description Computed
      */
     const { blocks, contain } = dataModel.value
+
+    const state = reactive({
+      title: '测试大屏',
+      leftAsideCollapse: false,
+      rightAsideCollapse: false,
+      toolboxCollapse: false,
+      screenScaleValue: 50,
+    })
+
     const canvasStyles = computed(() => ({
       width: `${contain.width}px`,
       height: `${contain.height}px`,
+      background: `#0e2b43`,
+      transform: `scale(${state.screenScaleValue / 100}) translate(0px, 0px)`,
     }))
 
     const blockStatus = computed(() => {
@@ -225,16 +239,27 @@ const EditorLayout = defineComponent({
     const commandTools = [
       { label: '撤销', icon: 'top-left', tip: 'ctrl + z', handler: commander.undo },
       { label: '重做', icon: 'top-right', tip: 'ctrl + shift + z', handler: commander.redo },
+      {
+        label: '导入',
+        icon: 'top-right',
+        handler: async () => {
+          const text = await $$dialog.textarea()
+          try {
+            const value = JSON.parse(text || '')
+            dataModel.value = value
+          } catch (error) {
+            console.error(error)
+          }
+        },
+      },
+      {
+        label: '导出',
+        icon: 'top-right',
+        handler: async () => $$dialog.textarea(JSON.stringify(dataModel.value), { editReadonly: true }),
+      },
       { label: '删除', icon: 'delete', tip: 'ctrl + d, delete, ', handler: () => commander.delete() },
       { label: '清空', icon: 'delete', handler: () => commander.clear() },
     ]
-
-    const state = reactive({
-      title: '测试大屏',
-      leftAsideCollapse: false,
-      rightAsideCollapse: false,
-      toolboxCollapse: false,
-    })
 
     const collapseContrList = [
       { label: '组件列表', icon: 'el-icon-menu', clickTargetKey: 'leftAsideCollapse' },
@@ -248,6 +273,11 @@ const EditorLayout = defineComponent({
         state[key] = !state[key]
       },
     }
+
+    const mainCanvasState = reactive({
+      screenW: document.body.clientWidth,
+      screenH: document.body.clientHeight,
+    })
 
     return () => (
       <div class='editor'>
@@ -320,6 +350,9 @@ const EditorLayout = defineComponent({
               })}
             </div>
             <div class='editor-operate'>
+              <RulerTool class='ruler-wrapper h-container' width={mainCanvasState.screenW} />
+              <RulerTool class='ruler-wrapper v-container' width={mainCanvasState.screenH} />
+              <div class='corner'></div>
               <div
                 id='canvas'
                 style={canvasStyles.value}
@@ -342,7 +375,7 @@ const EditorLayout = defineComponent({
               </div>
             </div>
             <footer class='editor-footer'>
-              <ScreenControl />
+              <ScreenControl v-model={state.screenScaleValue} />
             </footer>
           </main>
           <aside class={['editor-aside', { hide: state.rightAsideCollapse }]}>

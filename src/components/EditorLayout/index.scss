@@ -1,3 +1,5 @@
+@import '../../styles/helpers';
+
 $headerH: 40px;
 $footerH: 40px;
 $asideW: 240px;
@@ -40,6 +42,7 @@ $borderColor: #030304;
       width: $asideW;
       flex-shrink: 0;
       border-right: 1px solid $borderColor;
+      border-left: 1px solid $borderColor;
       background: $bgAsideBody;
       overflow: hidden;
       transition: width 0.3s ease;
@@ -64,6 +67,7 @@ $borderColor: #030304;
       flex: 1;
       display: flex;
       flex-direction: column;
+      background: url('../../assets/bg-canvas.png') repeat;
       > .toolbox-panel {
         background: $bgToolbox;
         box-sizing: border-box;
@@ -88,15 +92,26 @@ $borderColor: #030304;
         flex: 1;
         position: relative;
         overflow: auto;
-        margin: 20px;
-        // display: flex;
-        // justify-content: center;
+        .ruler-wrapper{
+          position: absolute;
+          height: 20px;
+          &.h-container{
+            left: 20px;
+            cursor: ew-resize;
+          }
+          &.v-container{
+            transform-origin: 0 100% 0;
+            cursor: ns-resize;
+            transform: rotate(90deg) translateX(0px);
+          }
+        }
         #canvas {
           background: silver;
           position: absolute;
-          // left: 50%;
-          // top: 50%;
-          // transform: translate(-50%, -50%);
+          top: 60px;
+          left: 60px;
+          transform-origin: 0 0;
+          transition: all .2s ease-in-out;
           > .editor-block {
             position: absolute;
           }

@@ -17,8 +17,8 @@ export default {
     return {
       jsonData: {
         contain: {
-          width: 1320,
-          height: 820,
+          width: 1920,
+          height: 1080,
         },
         blocks: [
           {

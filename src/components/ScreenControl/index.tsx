@@ -1,9 +1,16 @@
 import { defineComponent, reactive } from 'vue'
+import { UPDATE_MODEL_EVENT } from '@/utils/constants'
 import './index.scss'
 
 const EditorLayout = defineComponent({
-  props: {},
+  props: {
+    modelValue: {
+      type: Number,
+    },
+  },
+  emits: [UPDATE_MODEL_EVENT],
   setup(props, ctx) {
+    console.log(props.modelValue)
     const options = [
       {
         label: '200%',
@@ -27,18 +34,37 @@ const EditorLayout = defineComponent({
       },
     ]
     const state = reactive({
-      selectValue: 'auto',
-      sliderValue: 50,
+      scaleValue: props.modelValue,
+      // sliderValue: props.modelValue,
     })
+
+    const methods = {
+      onScaleChange: (value: number | string) => {
+        if (value === 'auto') {
+          ctx.emit(UPDATE_MODEL_EVENT, 50)
+        }
+        ctx.emit(UPDATE_MODEL_EVENT, value)
+      },
+    }
     return () => (
       <div class='screen-control'>
-        <el-select size='mini' class='screen-control-select' v-model={state.selectValue}>
+        {/* <el-select size='mini'
+          class='screen-control-select'
+          v-model={state.scaleValue}
+          onChange={ methods.onScaleChange }
+          >
           {options.map(item => (
             <el-option key={item.value} label={item.label} value={item.value}></el-option>
           ))}
-        </el-select>
+        </el-select> */}
         <i class='screen-control-icon el-icon-minus'></i>
-        <el-slider class='screen-control-slider' max={200} v-model={state.sliderValue}></el-slider>
+        <el-slider
+          class='screen-control-slider'
+          max={200}
+          step={5}
+          v-model={state.scaleValue}
+          onChange={methods.onScaleChange}
+        ></el-slider>
         <i class='screen-control-icon el-icon-plus'></i>
       </div>
     )
