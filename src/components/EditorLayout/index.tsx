@@ -1,6 +1,6 @@
 import { defineComponent, PropType, computed, ref, reactive } from 'vue'
 
-import { ComponentData, CanvasModelValue, BlockData } from '@/utils/types'
+import { ComponentData, CanvasModelValue, BlockData, MarkLine } from '@/utils/types'
 import { createNewBlock, ComponentHandlerConfig } from '@/utils/editor'
 import useCommand from '@/components/CommandTool/useCommand'
 import createEvent from '@/utils/event'
@@ -49,6 +49,10 @@ const EditorLayout = defineComponent({
       rightAsideCollapse: false,
       toolboxCollapse: false,
       screenScaleValue: 50,
+    })
+
+    const xxState = reactive({
+      selectBlock: null as null | BlockData, // 当前选中的组件
     })
 
     const canvasStyles = computed(() => ({
@@ -153,11 +157,19 @@ const EditorLayout = defineComponent({
 
     // 拖拽画布上的 Block
     const blockHandler = (() => {
+      const markState = reactive({
+        x: null as null | number,
+        y: null as null | number,
+      })
+
       let dragState = {
         startX: 0,
         startY: 0,
+        startLeft: 0,
+        startTop: 0,
         isDragging: false,
         dragBlocks: [] as { left: number; top: number }[],
+        markLines: {} as MarkLine,
       }
 
       const mousemove = (e: MouseEvent) => {
@@ -165,8 +177,47 @@ const EditorLayout = defineComponent({
           dragState.isDragging = true
           dragStartEvent.emit()
         }
-        const durX = e.clientX - dragState.startX
-        const durY = e.clientY - dragState.startY
+        let { clientX: moveX, clientY: moveY } = e
+        const { startX, startY } = dragState
+
+        if (e.shiftKey) {
+          // 按住shift,只能在水平/垂直方向上移动
+          if (Math.abs(moveX - startX) > Math.abs(moveY - startY)) {
+            moveX = startX
+          } else {
+            moveY = startY
+          }
+        }
+
+        const currentTop = dragState.startTop + moveY - startY
+        const currentLeft = dragState.startLeft + moveX - startX
+        const currentMark = {
+          x: null as null | number,
+          y: null as null | number,
+        }
+
+        for (let i = 0; i < dragState.markLines.y.length; i++) {
+          const { top, showTop } = dragState.markLines.y[i]
+          if (Math.abs(top - currentTop) < 5) {
+            moveY = top + startY - dragState.startTop
+            currentMark.y = showTop
+            break
+          }
+        }
+        for (let i = 0; i < dragState.markLines.x.length; i++) {
+          const { left, showLeft } = dragState.markLines.x[i]
+          if (Math.abs(left - currentLeft) < 5) {
+            moveX = left + startX - dragState.startLeft
+            currentMark.x = showLeft
+            break
+          }
+        }
+
+        markState.x = currentMark.x
+        markState.y = currentMark.y
+
+        const durX = moveX - startX
+        const durY = moveY - startY
         blockStatus.value.focus.forEach((block, index) => {
           block.top = dragState.dragBlocks[index].top + durY
           block.left = dragState.dragBlocks[index].left + durX
@@ -187,13 +238,39 @@ const EditorLayout = defineComponent({
         dragState = {
           startX: e.clientX,
           startY: e.clientY,
+          startLeft: xxState.selectBlock!.left,
+          startTop: xxState.selectBlock!.top,
           isDragging: false,
           dragBlocks: blockStatus.value.focus.map(({ top, left }) => ({ top, left })),
+          markLines: (() => {
+            const { focus, unFocus } = blockStatus.value
+            const { left, top, width, height } = xxState.selectBlock!
+
+            const lines: MarkLine = { x: [], y: [] }
+            unFocus.forEach(block => {
+              const { top: t, left: l, width: w, height: h } = block
+              // top: 对齐时当前正在拖动的组件的 top 值
+              // showTop: 对齐时辅助线出现的位置 top 值
+              lines.y.push({ top: t, showTop: t }) // (selectBlock)顶部 对齐 (unFocusBlock)顶部
+              lines.y.push({ top: t + h, showTop: t + h }) //              顶部 对齐 底部
+              lines.y.push({ top: t + h / 2 - height / 2, showTop: t + h / 2 }) //              中间 对齐 中间（Y轴）
+              lines.y.push({ top: t - height, showTop: t }) //              底部 对齐 顶部
+              lines.y.push({ top: t + h - height, showTop: t + h }) //              底部 对齐 底部
+
+              lines.x.push({ left: l, showLeft: l }) // (selectBlock)顶部 对齐 (unFocusBlock)顶部
+              lines.x.push({ left: l + w, showLeft: l + w }) //              顶部 对齐 底部
+              lines.x.push({ left: l + w / 2 - width / 2, showLeft: l + w / 2 }) //              中间 对齐 中间（x轴）
+              lines.x.push({ left: l - width, showLeft: l }) //              底部 对齐 顶部
+              lines.x.push({ left: l + w - width, showLeft: l + w }) //              底部 对齐 底部
+            })
+            return lines
+          })(),
         }
         document.addEventListener('mousemove', mousemove)
         document.addEventListener('mouseup', mouseup)
       }
       return {
+        markState,
         mousedown,
       }
     })()
@@ -212,6 +289,7 @@ const EditorLayout = defineComponent({
             block.focus = true
             methods.clearFocus(block)
           }
+          xxState.selectBlock = block
           blockHandler.mousedown(e)
         },
       },
@@ -224,6 +302,7 @@ const EditorLayout = defineComponent({
           }
           if (!e.shiftKey) {
             methods.clearFocus()
+            xxState.selectBlock = null
           }
         },
       },
@@ -374,6 +453,12 @@ const EditorLayout = defineComponent({
                       }}
                     />
                   ))}
+                {blockHandler.markState.y !== null && (
+                  <div class='move-mark-line-y' style={{ top: `${blockHandler.markState.y}px` }} />
+                )}
+                {blockHandler.markState.x !== null && (
+                  <div class='move-mark-line-x' style={{ left: `${blockHandler.markState.x}px` }} />
+                )}
               </div>
             </div>
             <footer class='editor-footer'>

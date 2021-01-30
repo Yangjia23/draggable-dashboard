@@ -16,7 +16,8 @@
   "lint-staged": {
     "*.{ts,tsx,js}": [
       "yarn lint",
-      "yarn prettier"
+      "yarn prettier",
+      "git add"
     ]
   },
   "dependencies": {

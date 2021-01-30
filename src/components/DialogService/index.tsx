@@ -61,7 +61,7 @@ const DialogComponent = defineComponent({
     Object.assign(ctx.proxy, methods)
 
     return () => (
-      <ElDialog v-model={state.showFlag} title={state.option.title} key={state.key}>
+      <ElDialog modelValue={state.showFlag} title={state.option.title} key={state.key}>
         {{
           default: () => (
             <div>

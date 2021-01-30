@@ -39,6 +39,8 @@ const EditorBlock = defineComponent({
       if (blockData.resizeLocation) {
         blockData.top -= offsetHeight / 2
         blockData.left -= offsetWidth / 2
+        blockData.width = offsetWidth
+        blockData.height = offsetHeight
         blockData.resizeLocation = false
       }
     })

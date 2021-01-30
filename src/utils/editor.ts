@@ -22,6 +22,9 @@ export function createNewBlock({
     resizeLocation: true,
     focus: false,
     zIndex: 0,
+    height: 0,
+    width: 0,
+    hasResize: false,
   }
 }
 

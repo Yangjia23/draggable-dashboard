@@ -23,6 +23,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-trailing-spaces': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-param-reassign': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-plusplus': 'off',
 
     '@typescript-eslint/no-unused-vars': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     '@typescript-eslint/no-non-null-assertion': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
