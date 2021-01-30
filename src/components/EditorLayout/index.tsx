@@ -257,6 +257,8 @@ const EditorLayout = defineComponent({
         icon: 'top-right',
         handler: async () => $$dialog.textarea(JSON.stringify(dataModel.value), { editReadonly: true }),
       },
+      { label: '置顶', icon: 'top', tip: 'ctrl + up', handler: () => commander.placeTop() },
+      { label: '置顶', icon: 'bottom', tip: 'ctrl + down', handler: () => commander.placeBottom() },
       { label: '删除', icon: 'delete', tip: 'ctrl + d, delete, ', handler: () => commander.delete() },
       { label: '清空', icon: 'delete', handler: () => commander.clear() },
     ]

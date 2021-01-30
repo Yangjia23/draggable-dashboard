@@ -26,12 +26,14 @@ export default {
             left: 100,
             componentKey: 'button',
             focus: false,
+            zIndex: 0
           },
           {
             top: 220,
             left: 230,
             componentKey: 'title',
             focus: false,
+            zIndex: 0
           },
         ],
       },

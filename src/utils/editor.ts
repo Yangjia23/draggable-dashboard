@@ -21,6 +21,7 @@ export function createNewBlock({
     componentKey: component!.name,
     resizeLocation: true,
     focus: false,
+    zIndex: 0,
   }
 }
 

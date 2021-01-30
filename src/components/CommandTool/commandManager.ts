@@ -73,8 +73,7 @@ export function createCommandManager() {
       state.commandArray.forEach(command => {
         const { keyboard, name } = command
         if (!keyboard) return
-        const keys = Array.isArray(keyboard) ? keyboard : [keyboard]
-        console.log('keys', keys)
+        const keys = (Array.isArray(keyboard) ? keyboard : [keyboard]).map(item => item.replace(/\s+/g, ''))
         if (keys.indexOf(targetKeyStr) > -1) {
           state.commands[name]() // 执行快捷键对应的 keyboard
           e.stopPropagation()

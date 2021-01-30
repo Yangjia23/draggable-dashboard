@@ -13,6 +13,7 @@ export interface BlockData {
   componentKey: string // 组件的 key
   resizeLocation?: boolean // 调整位置
   focus: boolean // 是否选中
+  zIndex: number // z-index 值
 }
 
 /** 画布 */

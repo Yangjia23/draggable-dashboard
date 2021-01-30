@@ -103,6 +103,78 @@ export default function useCommand({
     },
   })
 
+  // 置顶
+  commander.register({
+    name: 'placeTop',
+    keyboard: ['ctrl + up'],
+    followQueue: true,
+    execute() {
+      const data = {
+        before: deepcopy(blockDataModel.value.blocks || []),
+        after: deepcopy(
+          (() => {
+            const { blocks } = blockDataModel.value
+            const unFocusBlocks = blocks.filter(block => !block.focus)
+            const maxZIndex = unFocusBlocks.reduce((pre, block) => Math.max(pre, block.zIndex), 0)
+            blocks
+              .filter(block => block.focus)
+              .forEach(block => {
+                block.zIndex = maxZIndex + 1
+              })
+            return deepcopy(blockDataModel.value.blocks)
+          })(),
+        ),
+      }
+      return {
+        redo: () => {
+          updateBlocks(deepcopy(data.after))
+        },
+        undo: () => {
+          updateBlocks(deepcopy(data.before))
+        },
+      }
+    },
+  })
+
+  // 置底
+  commander.register({
+    name: 'placeBottom',
+    keyboard: ['ctrl + down'],
+    followQueue: true,
+    execute() {
+      const data = {
+        before: deepcopy(blockDataModel.value.blocks || []),
+        after: deepcopy(
+          (() => {
+            const { blocks } = blockDataModel.value
+            const unFocusBlocks = blocks.filter(block => !block.focus)
+            let minZIndex = unFocusBlocks.reduce((pre, block) => Math.min(pre, block.zIndex), Infinity) - 1
+            if (minZIndex < 0) {
+              unFocusBlocks.forEach(block => {
+                block.zIndex += Math.abs(minZIndex)
+              })
+              minZIndex = 0
+            }
+            blocks
+              .filter(block => block.focus)
+              .forEach(block => {
+                block.zIndex = minZIndex
+              })
+            return deepcopy(blockDataModel.value.blocks)
+          })(),
+        ),
+      }
+      return {
+        redo: () => {
+          updateBlocks(deepcopy(data.after))
+        },
+        undo: () => {
+          updateBlocks(deepcopy(data.before))
+        },
+      }
+    },
+  })
+
   commander.init()
 
   return {
@@ -111,5 +183,7 @@ export default function useCommand({
     delete: () => commander.state.commands.delete(),
     drag: () => commander.state.commands.drag(),
     clear: () => commander.state.commands.clear(),
+    placeTop: () => commander.state.commands.placeTop(),
+    placeBottom: () => commander.state.commands.placeBottom(),
   }
 }

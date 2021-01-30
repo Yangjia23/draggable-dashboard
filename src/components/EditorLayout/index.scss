@@ -92,14 +92,14 @@ $borderColor: #030304;
         flex: 1;
         position: relative;
         overflow: auto;
-        .ruler-wrapper{
+        .ruler-wrapper {
           position: absolute;
           height: 20px;
-          &.h-container{
+          &.h-container {
             left: 20px;
             cursor: ew-resize;
           }
-          &.v-container{
+          &.v-container {
             transform-origin: 0 100% 0;
             cursor: ns-resize;
             transform: rotate(90deg) translateX(0px);
@@ -111,7 +111,7 @@ $borderColor: #030304;
           top: 60px;
           left: 60px;
           transform-origin: 0 0;
-          transition: all .2s ease-in-out;
+          transition: all 0.2s ease-in-out;
           > .editor-block {
             position: absolute;
           }

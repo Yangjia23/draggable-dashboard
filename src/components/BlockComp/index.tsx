@@ -20,6 +20,7 @@ const EditorBlock = defineComponent({
     const blockStyles = computed(() => ({
       left: `${props.blockData.left}px`,
       top: `${props.blockData.top}px`,
+      zIndex: props.blockData.zIndex,
     }))
 
     const blockClasses = computed(() => {
