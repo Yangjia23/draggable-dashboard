@@ -1,0 +1,31 @@
+.dropdown-menu {
+  position: fixed;
+  background: #fff;
+  padding: 8px 0;
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 2px 5px 1px #dedede;
+  transition: opacity 1s ease-in-out;
+
+  &-show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &-item {
+    box-sizing: border-box;
+    padding: 5px 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    > i {
+      margin-right: 4px;
+    }
+    &:hover {
+      background: #efefef;
+      cursor: pointer;
+    }
+  }
+}

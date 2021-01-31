@@ -175,6 +175,33 @@ export default function useCommand({
     },
   })
 
+  // 更新单个 Block
+  commander.register({
+    name: 'updateBlock',
+    followQueue: true,
+    execute: (newBlock: BlockData, oldBlock: BlockData) => {
+      const blocks = deepcopy(blockDataModel.value.blocks || [])
+      const data = {
+        before: blocks,
+        after: (() => {
+          const idx = blocks.indexOf(oldBlock)
+          if (idx > -1) {
+            blocks.splice(idx, 1, newBlock)
+          }
+          return deepcopy(blocks)
+        })(),
+      }
+      return {
+        redo: () => {
+          updateBlocks(deepcopy(data.after))
+        },
+        undo: () => {
+          updateBlocks(deepcopy(data.before))
+        },
+      }
+    },
+  })
+
   commander.init()
 
   return {
@@ -185,5 +212,6 @@ export default function useCommand({
     clear: () => commander.state.commands.clear(),
     placeTop: () => commander.state.commands.placeTop(),
     placeBottom: () => commander.state.commands.placeBottom(),
+    updateBlock: (newBlock: BlockData, oldBlock: BlockData) => commander.state.commands.updateBlock(newBlock, oldBlock),
   }
 }

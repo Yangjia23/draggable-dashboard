@@ -33,3 +33,9 @@ export interface MarkLine {
   x: { left: number; showLeft: number }[]
   y: { top: number; showTop: number }[]
 }
+
+/** 右击菜单 */
+export interface DropdownOption {
+  reference: MouseEvent | HTMLElement // 目标对象
+  content: () => JSX.Element
+}

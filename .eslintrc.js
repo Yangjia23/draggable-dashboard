@@ -28,5 +28,6 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     '@typescript-eslint/no-non-null-assertion': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     '@typescript-eslint/member-delimiter-style': 'off',
+    '@typescript-eslint/no-use-before-define': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
   },
 }

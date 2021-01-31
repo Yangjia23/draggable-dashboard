@@ -9,7 +9,7 @@ export interface CommandExecute {
 export interface Command {
   name: string // 命令唯一标识
   keyboard?: string | string[] // 命令监听的快捷键
-  execute: (...args: unknown[]) => CommandExecute // 命令执行时所触发的操作
+  execute: (...args: any[]) => CommandExecute // 命令执行时所触发的操作
   followQueue?: boolean // 是否存放到 操作历史队列 中
   init?: () => () => void | undefined // 命令初始化函数
   data?: any

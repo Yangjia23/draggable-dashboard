@@ -11,6 +11,7 @@ import ScreenControl from '../ScreenControl'
 import RulerTool from '../RulerTool'
 import './index.scss'
 import $$dialog from '../DialogService'
+import $$dropdown, { DropdownOptionItem } from '../DropdownService'
 
 const EditorLayout = defineComponent({
   props: {
@@ -93,6 +94,21 @@ const EditorLayout = defineComponent({
         dataModel.value = {
           ...dataModel.value,
           blocks,
+        }
+      },
+      showBlockData(block: BlockData) {
+        $$dialog.textarea(JSON.stringify(block), {
+          title: '当前节点数据',
+          editReadonly: true,
+        })
+      },
+      importBlockData: async (block: BlockData) => {
+        const text = await $$dialog.textarea('', { title: '请输入节点JSON字符串' })
+        try {
+          const data = JSON.parse(text || '')
+          commander.updateBlock(data, block)
+        } catch (error) {
+          console.error(error)
         }
       },
     }
@@ -229,12 +245,13 @@ const EditorLayout = defineComponent({
           dragState.isDragging = false
           dragEndEvent.emit()
         }
+        markState.x = null
+        markState.y = null
         document.removeEventListener('mousemove', mousemove)
         document.removeEventListener('mouseup', mouseup)
       }
 
       const mousedown = (e: MouseEvent) => {
-        console.log('mousedown e', e)
         dragState = {
           startX: e.clientX,
           startY: e.clientY,
@@ -307,6 +324,34 @@ const EditorLayout = defineComponent({
         },
       },
     }))()
+
+    /** 其它事件 */
+    const handler = {
+      onContextmenu: (e: MouseEvent, block: BlockData) => {
+        e.stopPropagation()
+        e.preventDefault()
+        $$dropdown({
+          reference: e,
+          content: () => (
+            <>
+              <DropdownOptionItem label='置顶节点' icon='top' {...{ onClick: commander.placeTop }} />
+              <DropdownOptionItem label='置底节点' icon='bottom' {...{ onClick: commander.placeBottom }} />
+              <DropdownOptionItem label='删除节点' icon='delete' {...{ onClick: commander.delete }} />
+              <DropdownOptionItem
+                label='查看节点'
+                icon='top-left'
+                {...{ onClick: () => methods.showBlockData(block) }}
+              />
+              <DropdownOptionItem
+                label='导入节点'
+                icon='top-right'
+                {...{ onClick: () => methods.importBlockData(block) }}
+              />
+            </>
+          ),
+        })
+      },
+    }
 
     const commander = useCommand({
       blockDataModel: dataModel,
@@ -450,6 +495,7 @@ const EditorLayout = defineComponent({
                       key={index}
                       {...{
                         onMousedown: (e: MouseEvent) => focusHandler.block.onMousedown(e, block),
+                        onContextmenu: (e: MouseEvent) => handler.onContextmenu(e, block),
                       }}
                     />
                   ))}
