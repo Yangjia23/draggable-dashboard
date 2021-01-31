@@ -9,9 +9,19 @@ import {
   onMounted,
   onBeforeUnmount,
   ref,
+  provide,
+  inject,
 } from 'vue'
 import './index.scss'
 import { defer } from '../DialogService/defer'
+
+const DropdownProvider = (() => {
+  const DROPDOWN_PROVIDER = '@@DROPDOWN_PROVIDER'
+  return {
+    provider: (handler: { onClick: () => void }) => provide(DROPDOWN_PROVIDER, handler),
+    inject: () => inject(DROPDOWN_PROVIDER) as { onClick: () => void },
+  }
+})()
 
 const Dropdown = defineComponent({
   props: {
@@ -77,6 +87,9 @@ const Dropdown = defineComponent({
       methods.show()
     }
 
+    DropdownProvider.provider({
+      onClick: methods.hide,
+    })
     Object.assign(ctx.proxy, { service })
 
     return () => (
@@ -92,9 +105,21 @@ export const DropdownOptionItem = defineComponent({
     label: { type: String },
     icon: { type: String },
   },
-  setup(props) {
+  emits: {
+    click: (e: MouseEvent) => true,
+  },
+  setup(props, ctx) {
+    const { onClick: dropdownClickHandler } = DropdownProvider.inject()
+
+    const methods = {
+      onClick: (e: MouseEvent) => {
+        ctx.emit('click', e)
+        dropdownClickHandler() // 自动关闭 dropdown menu
+      },
+    }
+
     return () => (
-      <div class='dropdown-menu-item'>
+      <div class='dropdown-menu-item' onClick={methods.onClick}>
         <i class={`el-icon-${props.icon}`}></i>
         <span>{props.label}</span>
       </div>
