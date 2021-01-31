@@ -199,9 +199,9 @@ const EditorLayout = defineComponent({
         if (e.shiftKey) {
           // 按住shift,只能在水平/垂直方向上移动
           if (Math.abs(moveX - startX) > Math.abs(moveY - startY)) {
-            moveX = startX
-          } else {
             moveY = startY
+          } else {
+            moveX = startX
           }
         }
 
@@ -264,7 +264,15 @@ const EditorLayout = defineComponent({
             const { left, top, width, height } = xxState.selectBlock!
 
             const lines: MarkLine = { x: [], y: [] }
-            unFocus.forEach(block => {
+            ;[
+              ...unFocus,
+              {
+                top: 0,
+                left: 0,
+                width: dataModel.value.contain.width,
+                height: dataModel.value.contain.height,
+              },
+            ].forEach(block => {
               const { top: t, left: l, width: w, height: h } = block
               // top: 对齐时当前正在拖动的组件的 top 值
               // showTop: 对齐时辅助线出现的位置 top 值
