@@ -29,18 +29,18 @@ export default function useCommand({
     keyboard: ['delete', 'ctrl + d'],
     followQueue: true,
     execute: () => {
-      console.log('执行删除操作ing')
+      // console.log('执行删除操作ing')
       const data = {
         before: blockDataModel.value.blocks,
         after: blockDataModel.value.blocks.filter(block => !block.focus),
       }
       return {
         redo: () => {
-          console.log('重新执行删除操作')
+          // console.log('重新执行删除操作')
           updateBlocks(data.after)
         },
         undo: () => {
-          console.log('撤回删除操作')
+          // console.log('撤回删除操作')
           updateBlocks(data.before)
         },
       }
@@ -184,7 +184,7 @@ export default function useCommand({
       const data = {
         before: blocks,
         after: (() => {
-          const idx = blocks.indexOf(oldBlock)
+          const idx = blockDataModel.value.blocks!.indexOf(oldBlock)
           if (idx > -1) {
             blocks.splice(idx, 1, newBlock)
           }

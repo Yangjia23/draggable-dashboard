@@ -114,10 +114,10 @@ export function createCommandManager() {
     keyboard: 'ctrl+z',
     followQueue: false,
     execute: () => {
-      console.log('ctrl + z ing')
+      // console.log('ctrl + z ing')
       return {
         redo() {
-          console.log('ctrl + z redo ing', state)
+          // console.log('ctrl + z redo ing', state)
           const { current, queue } = state
           if (current === -1) return
           const { undo } = queue[current]
@@ -134,10 +134,10 @@ export function createCommandManager() {
     keyboard: 'ctrl + shift + z',
     followQueue: false,
     execute: () => {
-      console.log('重做 ing', state)
+      // console.log('重做 ing', state)
       return {
         redo() {
-          console.log('重做 redo state', state)
+          // console.log('重做 redo state', state)
           const { current, queue } = state
           const { redo } = queue[current + 1]
           // why current + 1, not current? 👆

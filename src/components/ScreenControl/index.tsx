@@ -10,7 +10,7 @@ const EditorLayout = defineComponent({
   },
   emits: [UPDATE_MODEL_EVENT],
   setup(props, ctx) {
-    console.log(props.modelValue)
+    // console.log(props.modelValue)
     const options = [
       {
         label: '200%',

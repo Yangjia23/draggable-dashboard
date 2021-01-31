@@ -90,7 +90,7 @@ const EditorLayout = defineComponent({
         })
       },
       updateBlocks(blocks: BlockData[]) {
-        console.log('执行ing', blocks)
+        // console.log('执行ing', blocks)
         dataModel.value = {
           ...dataModel.value,
           blocks,
@@ -138,11 +138,11 @@ const EditorLayout = defineComponent({
         },
         // 被拖拽组件放置到画布上
         drop: (e: DragEvent) => {
-          console.log('currentDragBlock', currentDragBlock)
+          // console.log('currentDragBlock', currentDragBlock)
           // const existBlocks = dataModel.value.blocks || []
           const blocks = [...dataModel.value.blocks]
           blocks.push(createNewBlock({ top: e.offsetY, left: e.offsetX, component: currentDragBlock! }))
-          console.log('blocks after drop', blocks)
+          // console.log('blocks after drop', blocks)
           methods.updateBlocks(blocks)
           dragEndEvent.emit()
         },
