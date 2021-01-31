@@ -3,12 +3,12 @@ import { BlockData, CanvasModelValue } from '@/utils/types'
 import { createCommandManager } from './commandManager'
 
 export default function useCommand({
-  blockDataModel,
+  canvasDataModel,
   updateBlocks,
   dragStartEvent,
   dragEndEvent,
 }: {
-  blockDataModel: {
+  canvasDataModel: {
     value: CanvasModelValue
   }
   updateBlocks: (blocks: BlockData[]) => void
@@ -31,8 +31,8 @@ export default function useCommand({
     execute: () => {
       // console.log('执行删除操作ing')
       const data = {
-        before: blockDataModel.value.blocks,
-        after: blockDataModel.value.blocks.filter(block => !block.focus),
+        before: canvasDataModel.value.blocks,
+        after: canvasDataModel.value.blocks.filter(block => !block.focus),
       }
       return {
         redo: () => {
@@ -55,7 +55,7 @@ export default function useCommand({
       this.data = { before: null as null | BlockData[] }
       const handler = {
         dragStart: () => {
-          this.data.before = deepcopy(blockDataModel.value.blocks || [])
+          this.data.before = deepcopy(canvasDataModel.value.blocks || [])
         },
         dragEnd: () => {
           commander.state.commands.drag()
@@ -70,7 +70,7 @@ export default function useCommand({
     },
     execute() {
       const { before } = this.data
-      const after = blockDataModel.value.blocks || []
+      const after = canvasDataModel.value.blocks || []
 
       return {
         redo: () => {
@@ -89,7 +89,7 @@ export default function useCommand({
     followQueue: true,
     execute() {
       const data = {
-        before: deepcopy(blockDataModel.value.blocks || []),
+        before: deepcopy(canvasDataModel.value.blocks || []),
         after: [],
       }
       return {
@@ -110,10 +110,10 @@ export default function useCommand({
     followQueue: true,
     execute() {
       const data = {
-        before: deepcopy(blockDataModel.value.blocks || []),
+        before: deepcopy(canvasDataModel.value.blocks || []),
         after: deepcopy(
           (() => {
-            const { blocks } = blockDataModel.value
+            const { blocks } = canvasDataModel.value
             const unFocusBlocks = blocks.filter(block => !block.focus)
             const maxZIndex = unFocusBlocks.reduce((pre, block) => Math.max(pre, block.zIndex), 0)
             blocks
@@ -121,7 +121,7 @@ export default function useCommand({
               .forEach(block => {
                 block.zIndex = maxZIndex + 1
               })
-            return deepcopy(blockDataModel.value.blocks)
+            return deepcopy(canvasDataModel.value.blocks)
           })(),
         ),
       }
@@ -143,10 +143,10 @@ export default function useCommand({
     followQueue: true,
     execute() {
       const data = {
-        before: deepcopy(blockDataModel.value.blocks || []),
+        before: deepcopy(canvasDataModel.value.blocks || []),
         after: deepcopy(
           (() => {
-            const { blocks } = blockDataModel.value
+            const { blocks } = canvasDataModel.value
             const unFocusBlocks = blocks.filter(block => !block.focus)
             let minZIndex = unFocusBlocks.reduce((pre, block) => Math.min(pre, block.zIndex), Infinity) - 1
             if (minZIndex < 0) {
@@ -160,7 +160,7 @@ export default function useCommand({
               .forEach(block => {
                 block.zIndex = minZIndex
               })
-            return deepcopy(blockDataModel.value.blocks)
+            return deepcopy(canvasDataModel.value.blocks)
           })(),
         ),
       }
@@ -180,11 +180,11 @@ export default function useCommand({
     name: 'updateBlock',
     followQueue: true,
     execute: (newBlock: BlockData, oldBlock: BlockData) => {
-      const blocks = deepcopy(blockDataModel.value.blocks || [])
+      const blocks = deepcopy(canvasDataModel.value.blocks || [])
       const data = {
         before: blocks,
         after: (() => {
-          const idx = blockDataModel.value.blocks!.indexOf(oldBlock)
+          const idx = canvasDataModel.value.blocks!.indexOf(oldBlock)
           if (idx > -1) {
             blocks.splice(idx, 1, newBlock)
           }
@@ -202,6 +202,27 @@ export default function useCommand({
     },
   })
 
+  // 更新canvas 容器
+  commander.register({
+    name: 'updateCanvasModel',
+    followQueue: true,
+    execute: (value: CanvasModelValue) => {
+      console.log('value', value)
+      const data = {
+        before: deepcopy(canvasDataModel.value),
+        after: deepcopy(value),
+      }
+      return {
+        redo: () => {
+          canvasDataModel.value = data.after
+        },
+        undo: () => {
+          canvasDataModel.value = data.before
+        },
+      }
+    },
+  })
+
   commander.init()
 
   return {
@@ -213,5 +234,6 @@ export default function useCommand({
     placeTop: () => commander.state.commands.placeTop(),
     placeBottom: () => commander.state.commands.placeBottom(),
     updateBlock: (newBlock: BlockData, oldBlock: BlockData) => commander.state.commands.updateBlock(newBlock, oldBlock),
+    updateCanvasModel: (value: CanvasModelValue) => commander.state.commands.updateCanvasModel(value),
   }
 }

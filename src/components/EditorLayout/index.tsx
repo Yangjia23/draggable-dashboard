@@ -6,6 +6,7 @@ import useCommand from '@/components/CommandTool/useCommand'
 import createEvent from '@/utils/event'
 import useModel from './useModel'
 import EditorBlock from '../BlockComp'
+import EditorForm from '../EditorForm'
 import PreviewComp from '../PreviewComp'
 import ScreenControl from '../ScreenControl'
 import RulerTool from '../RulerTool'
@@ -30,6 +31,7 @@ const EditorLayout = defineComponent({
   },
   components: {
     EditorBlock,
+    EditorForm,
     PreviewComp,
     ScreenControl,
     RulerTool,
@@ -42,8 +44,6 @@ const EditorLayout = defineComponent({
     /**
      * @description Computed
      */
-    const { blocks, contain } = dataModel.value
-
     const state = reactive({
       title: '测试大屏',
       leftAsideCollapse: false,
@@ -53,12 +53,12 @@ const EditorLayout = defineComponent({
     })
 
     const xxState = reactive({
-      selectBlock: null as null | BlockData, // 当前选中的组件
+      selectBlock: undefined as undefined | BlockData, // 当前选中的组件
     })
 
     const canvasStyles = computed(() => ({
-      width: `${contain.width}px`,
-      height: `${contain.height}px`,
+      width: `${dataModel.value.contain.width}px`,
+      height: `${dataModel.value.contain.height}px`,
       background: `#0e2b43`,
       transform: `scale(${state.screenScaleValue / 100}) translate(0px, 0px)`,
     }))
@@ -319,7 +319,7 @@ const EditorLayout = defineComponent({
           }
           if (!e.shiftKey) {
             methods.clearFocus()
-            xxState.selectBlock = null
+            xxState.selectBlock = undefined
           }
         },
       },
@@ -354,7 +354,7 @@ const EditorLayout = defineComponent({
     }
 
     const commander = useCommand({
-      blockDataModel: dataModel,
+      canvasDataModel: dataModel,
       updateBlocks: methods.updateBlocks,
       dragStartEvent,
       dragEndEvent,
@@ -514,6 +514,22 @@ const EditorLayout = defineComponent({
           <aside class={['editor-aside', { hide: state.rightAsideCollapse }]}>
             <div class='editor-aside-top'>
               <span class='editor-aside-title'>页面设置</span>
+            </div>
+            <div>
+              <EditorForm
+                block={xxState.selectBlock}
+                config={props.config}
+                dataModel={dataModel}
+                {...{
+                  onUpdateBlock: (data: { newBlock: BlockData; oldBlock: BlockData }) => {
+                    commander.updateBlock(data.newBlock, data.oldBlock)
+                  },
+                  onUpdateCanvas: (data: CanvasModelValue) => {
+                    console.log('CanvasModelValue', data)
+                    commander.updateCanvasModel(data)
+                  },
+                }}
+              />
             </div>
           </aside>
         </section>

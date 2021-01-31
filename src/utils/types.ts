@@ -4,7 +4,13 @@ export interface ComponentData {
   label: string
   preview: () => JSX.Element
   render: () => JSX.Element
+  props?: Record<string, BlockProps>
 }
+
+export type EditorSelectOptions = {
+  label: string
+  value: string
+}[]
 
 /** 区块 */
 export interface BlockData {
@@ -17,6 +23,22 @@ export interface BlockData {
   width: number // 组件宽度
   height: number // 组件高度
   hasResize: boolean // 是否调整过宽高
+  props: Record<string, any> // 组件设定的属性
+}
+
+/** 区块 Props Type */
+export enum BlockPropsType {
+  input = 'input',
+  color = 'color',
+  select = 'select',
+}
+
+/** 区块 Props Type */
+export type BlockProps = {
+  type: BlockPropsType
+  label: string
+} & {
+  options?: EditorSelectOptions
 }
 
 /** 画布 */

@@ -1,4 +1,4 @@
-import { ComponentData, BlockData } from './types'
+import { ComponentData, BlockData, BlockPropsType, EditorSelectOptions } from './types'
 
 /**
  * @description 创建一个新的 block 区块
@@ -25,6 +25,7 @@ export function createNewBlock({
     height: 0,
     width: 0,
     hasResize: false,
+    props: {},
   }
 }
 
@@ -52,3 +53,28 @@ export function createComponentHandler() {
 }
 
 export type ComponentHandlerConfig = ReturnType<typeof createComponentHandler>
+
+/** ---------- input --------- */
+export function createEditorInputProp(label: string) {
+  return {
+    type: BlockPropsType.input,
+    label,
+  }
+}
+/** ---------- color --------- */
+export function createEditorColorProp(label: string) {
+  return {
+    type: BlockPropsType.color,
+    label,
+  }
+}
+/** ---------- select --------- */
+export function createEditorSelectProp(label: string, options: EditorSelectOptions) {
+  return {
+    type: BlockPropsType.select,
+    label,
+    options,
+  }
+}
+/** ---------- input --------- */
+/** ---------- input --------- */

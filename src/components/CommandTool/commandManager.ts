@@ -113,19 +113,16 @@ export function createCommandManager() {
     name: 'undo',
     keyboard: 'ctrl+z',
     followQueue: false,
-    execute: () => {
-      // console.log('ctrl + z ing')
-      return {
-        redo() {
-          // console.log('ctrl + z redo ing', state)
-          const { current, queue } = state
-          if (current === -1) return
-          const { undo } = queue[current]
-          if (undo) undo()
-          state.current -= 1
-        },
-      }
-    },
+    execute: () => ({
+      redo() {
+        // console.log('ctrl + z redo ing', state)
+        const { current, queue } = state
+        if (current === -1) return
+        const { undo } = queue[current]
+        if (undo) undo()
+        state.current -= 1
+      },
+    }),
   })
 
   register({
@@ -133,23 +130,20 @@ export function createCommandManager() {
     name: 'redo',
     keyboard: 'ctrl + shift + z',
     followQueue: false,
-    execute: () => {
-      // console.log('重做 ing', state)
-      return {
-        redo() {
-          // console.log('重做 redo state', state)
-          const { current, queue } = state
-          const { redo } = queue[current + 1]
-          // why current + 1, not current? 👆
-          // 当执行 删除(current +1) -> 撤销 (current - 1), 此时 current = -1, queue = [{...}]
-          // 所以在 重做命令时，需进行 +1 为 0, 才能读取 queue 中的值
-          if (redo) {
-            redo()
-            state.current += 1
-          }
-        },
-      }
-    },
+    execute: () => ({
+      redo() {
+        // console.log('重做 redo state', state)
+        const { current, queue } = state
+        const { redo } = queue[current + 1]
+        // why current + 1, not current? 👆
+        // 当执行 删除(current +1) -> 撤销 (current - 1), 此时 current = -1, queue = [{...}]
+        // 所以在 重做命令时，需进行 +1 为 0, 才能读取 queue 中的值
+        if (redo) {
+          redo()
+          state.current += 1
+        }
+      },
+    }),
   })
 
   onUnmounted(() => {
