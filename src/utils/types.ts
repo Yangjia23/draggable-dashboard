@@ -12,6 +12,14 @@ export type EditorSelectOptions = {
   value: string
 }[]
 
+export type EditorTableConfig = {
+  option: {
+    label: string
+    field: string
+  }[]
+  showKey: 'label'
+}
+
 /** 区块 */
 export interface BlockData {
   top: number
@@ -31,6 +39,7 @@ export enum BlockPropsType {
   input = 'input',
   color = 'color',
   select = 'select',
+  table = 'table',
 }
 
 /** 区块 Props Type */
@@ -39,6 +48,8 @@ export type BlockProps = {
   label: string
 } & {
   options?: EditorSelectOptions
+} & {
+  table?: EditorTableConfig
 }
 
 /** 画布 */

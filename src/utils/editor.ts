@@ -1,4 +1,4 @@
-import { ComponentData, BlockData, BlockPropsType, EditorSelectOptions, BlockProps } from './types'
+import { ComponentData, BlockData, BlockPropsType, EditorSelectOptions, BlockProps, EditorTableConfig } from './types'
 
 /**
  * @description 创建一个新的 block 区块
@@ -85,5 +85,13 @@ export function createEditorSelectProp(label: string, options: EditorSelectOptio
     options,
   }
 }
-/** ---------- input --------- */
+/** ---------- table --------- */
+export function createEditorTableProp(label: string, table: EditorTableConfig) {
+  return {
+    type: BlockPropsType.table,
+    label,
+    table,
+  }
+}
+
 /** ---------- input --------- */

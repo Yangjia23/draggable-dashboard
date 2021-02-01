@@ -4,6 +4,7 @@ import { ElForm, ElFormItem, ElInputNumber, ElInput, ElColorPicker, ElSelect, El
 import { ComponentHandlerConfig } from '@/utils/editor'
 import './index.scss'
 import deepcopy from 'deepcopy'
+import TablePropsEditor from '../TablePropsEditor'
 
 const EditorForm = defineComponent({
   props: {
@@ -40,6 +41,7 @@ const EditorForm = defineComponent({
               ))}
             </ElSelect>
           ),
+          [BlockPropsType.table]: () => <TablePropsEditor v-model={state.model[propName]} config={propConfig} />,
         }[propConfig.type]()),
       apply: () => {
         if (props.block) {
@@ -113,7 +115,7 @@ const EditorForm = defineComponent({
       }
       return (
         <div class='editor-form'>
-          <ElForm>
+          <ElForm label-position='top'>
             {content}
             <ElFormItem>
               <ElButton type='primary' {...({ onClick: () => methods.apply() } as any)}>

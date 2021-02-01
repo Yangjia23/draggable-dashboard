@@ -1,6 +1,11 @@
-import { ElButton, ElInput, ElRadio } from 'element-plus'
+import { ElButton, ElInput, ElRadio, ElSelect, ElOption } from 'element-plus'
 import { ComponentData } from '@/utils/types'
-import { createEditorInputProp, createEditorColorProp, createEditorSelectProp } from '@/utils/editor'
+import {
+  createEditorInputProp,
+  createEditorColorProp,
+  createEditorSelectProp,
+  createEditorTableProp,
+} from '@/utils/editor'
 
 interface ComponentMap {
   [props: string]: ComponentData
@@ -56,6 +61,27 @@ const componentMap: ComponentMap = {
     label: '输入框',
     preview: () => <ElInput placeholder='请输入内容'></ElInput>,
     render: () => <ElInput placeholder='请输入内容'></ElInput>,
+  },
+  select: {
+    name: 'select',
+    label: '选择器',
+    preview: () => <ElSelect />,
+    render: ({ props }) => (
+      <ElSelect>
+        {(props.options || []).map((opt: { label: string; value: string }, idx: number) => (
+          <ElOption label={opt.label} value={opt.value}></ElOption>
+        ))}
+      </ElSelect>
+    ),
+    props: {
+      table: createEditorTableProp('下拉选项', {
+        option: [
+          { label: '显示值', field: 'label' },
+          { label: '绑定值', field: 'value' },
+        ],
+        showKey: 'label',
+      }),
+    },
   },
   radio: {
     name: 'radio',

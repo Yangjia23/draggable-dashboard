@@ -12,6 +12,7 @@ import {
   ElFormItem,
   ElInputNumber,
   ElColorPicker,
+  ElTag,
 } from 'element-plus'
 
 import App from './App.vue'
@@ -32,6 +33,7 @@ app.component(ElForm.name, ElForm)
 app.component(ElFormItem.name, ElFormItem)
 app.component(ElInputNumber.name, ElInputNumber)
 app.component(ElColorPicker.name, ElColorPicker)
+app.component(ElTag.name, ElTag)
 
 app.use(store)
 app.use(router)
