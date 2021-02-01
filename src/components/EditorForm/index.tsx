@@ -31,10 +31,10 @@ const EditorForm = defineComponent({
     const methods = {
       renderEditorItem: (propName: string, propConfig: BlockProps) =>
         ({
-          [BlockPropsType.input]: () => <ElInput modelValue={state.model[propName]} />,
-          [BlockPropsType.color]: () => <ElColorPicker modelValue={state.model[propName]} />,
+          [BlockPropsType.input]: () => <ElInput v-model={state.model[propName]} />,
+          [BlockPropsType.color]: () => <ElColorPicker v-model={state.model[propName]} />,
           [BlockPropsType.select]: () => (
-            <ElSelect modelValue={state.model[propName]}>
+            <ElSelect v-model={state.model[propName]}>
               {propConfig.options!.map(opt => (
                 <ElOption label={opt.label} value={opt.value}></ElOption>
               ))}
@@ -42,7 +42,6 @@ const EditorForm = defineComponent({
           ),
         }[propConfig.type]()),
       apply: () => {
-        console.log(112)
         if (props.block) {
           /** 更新组件 */
           ctx.emit('updateBlock', {
@@ -53,7 +52,6 @@ const EditorForm = defineComponent({
             oldBlock: props.block,
           })
         } else {
-          console.log(2343)
           /** 更新容器 */
           ctx.emit('updateCanvas', {
             ...props.dataModel.value,

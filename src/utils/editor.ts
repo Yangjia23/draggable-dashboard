@@ -1,4 +1,4 @@
-import { ComponentData, BlockData, BlockPropsType, EditorSelectOptions } from './types'
+import { ComponentData, BlockData, BlockPropsType, EditorSelectOptions, BlockProps } from './types'
 
 /**
  * @description 创建一个新的 block 区块
@@ -35,6 +35,7 @@ export function createNewBlock({
  *          componentList 组件集合
  *          register 注册新组件的方法
  */
+
 export function createComponentHandler() {
   const componentList: ComponentData[] = []
   const componentMap: Record<string, ComponentData> = {}
@@ -42,7 +43,15 @@ export function createComponentHandler() {
   return {
     componentMap,
     componentList,
-    register: (name: string, component: Omit<ComponentData, 'name'>) => {
+    register: <Props extends Record<string, BlockProps> = {}>(
+      name: string,
+      component: {
+        label: string
+        preview: () => JSX.Element
+        render: (data: { props: { [k in keyof Props]: any } }) => JSX.Element
+        props?: Props
+      },
+    ) => {
       const comp = { ...component, name }
       if (!componentMap[name]) {
         componentMap[name] = comp

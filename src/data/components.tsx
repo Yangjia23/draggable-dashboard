@@ -11,7 +11,11 @@ const componentMap: ComponentMap = {
     name: 'button',
     label: '按钮',
     preview: () => <ElButton>Button</ElButton>,
-    render: () => <ElButton>Button</ElButton>,
+    render: ({ props }) => (
+      <ElButton type={props.type} size={props.size}>
+        {props.text || '默认按钮'}
+      </ElButton>
+    ),
     props: {
       text: createEditorInputProp('按钮文本'),
       type: createEditorSelectProp('按钮类型', [
@@ -34,8 +38,8 @@ const componentMap: ComponentMap = {
   title: {
     name: 'title',
     label: '标题',
-    preview: () => <h2>Title</h2>,
-    render: () => <h2>Title</h2>,
+    preview: () => <span>Title</span>,
+    render: ({ props }) => <span style={{ color: props.color, fontSize: props.size }}>{props.text || '默认标题'}</span>,
     props: {
       text: createEditorInputProp('显示文本'),
       color: createEditorColorProp('字体颜色'),

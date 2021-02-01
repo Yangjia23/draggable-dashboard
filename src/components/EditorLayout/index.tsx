@@ -52,8 +52,10 @@ const EditorLayout = defineComponent({
       screenScaleValue: 50,
     })
 
+    const selectBlockIndex = ref(-1)
+
     const xxState = reactive({
-      selectBlock: undefined as undefined | BlockData, // 当前选中的组件
+      selectBlock: computed(() => (dataModel.value.blocks || [])[selectBlockIndex.value]), // 当前选中的组件
     })
 
     const canvasStyles = computed(() => ({
@@ -90,7 +92,7 @@ const EditorLayout = defineComponent({
         })
       },
       updateBlocks(blocks: BlockData[]) {
-        // console.log('执行ing', blocks)
+        console.log('执行ing', blocks)
         dataModel.value = {
           ...dataModel.value,
           blocks,
@@ -303,7 +305,7 @@ const EditorLayout = defineComponent({
     // 点击画布上组件，focus选中，shift 多选
     const focusHandler = (() => ({
       block: {
-        onMousedown: (e: MouseEvent, block: BlockData) => {
+        onMousedown: (e: MouseEvent, block: BlockData, index: number) => {
           if (e.shiftKey) {
             if (blockStatus.value.focus.length <= 1) {
               block.focus = true
@@ -314,7 +316,8 @@ const EditorLayout = defineComponent({
             block.focus = true
             methods.clearFocus(block)
           }
-          xxState.selectBlock = block
+          // xxState.selectBlock = block
+          selectBlockIndex.value = index
           blockHandler.mousedown(e)
         },
       },
@@ -327,7 +330,7 @@ const EditorLayout = defineComponent({
           }
           if (!e.shiftKey) {
             methods.clearFocus()
-            xxState.selectBlock = undefined
+            selectBlockIndex.value = -1
           }
         },
       },
@@ -502,7 +505,7 @@ const EditorLayout = defineComponent({
                       blockData={block}
                       key={index}
                       {...{
-                        onMousedown: (e: MouseEvent) => focusHandler.block.onMousedown(e, block),
+                        onMousedown: (e: MouseEvent) => focusHandler.block.onMousedown(e, block, index),
                         onContextmenu: (e: MouseEvent) => handler.onContextmenu(e, block),
                       }}
                     />

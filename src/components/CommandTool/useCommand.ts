@@ -180,6 +180,8 @@ export default function useCommand({
     name: 'updateBlock',
     followQueue: true,
     execute: (newBlock: BlockData, oldBlock: BlockData) => {
+      console.log('newBlock', newBlock.props)
+      console.log('oldBlock', oldBlock.props)
       const blocks = deepcopy(canvasDataModel.value.blocks || [])
       const data = {
         before: blocks,

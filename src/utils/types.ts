@@ -3,7 +3,7 @@ export interface ComponentData {
   name: string
   label: string
   preview: () => JSX.Element
-  render: () => JSX.Element
+  render: (data: { props: any }) => JSX.Element
   props?: Record<string, BlockProps>
 }
 

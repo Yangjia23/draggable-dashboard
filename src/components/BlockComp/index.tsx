@@ -50,7 +50,9 @@ const EditorBlock = defineComponent({
       const component = config.componentMap[blockData.componentKey]
       return (
         <div class={blockClasses.value} style={blockStyles.value} ref={blockRef}>
-          {component.render()}
+          {component.render({
+            props: blockData.props || {},
+          })}
         </div>
       )
     }
